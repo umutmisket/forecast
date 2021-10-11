@@ -3,13 +3,13 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { styles } from "./LoginScreenStyle"
 import { SafeAreaView, View, TouchableOpacity, TextInput, Text } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 function LoginScreen({ navigation }) {
     const [users, setUsers] = useState({});
     const [userId, setUserId] = useState("");
     const [userPassword, setUserPassword] = useState("");
     const [icon, setIcon] = useState("eye");
     const [hidePassword, setHidePassword] = useState(true);
+    const [isBoxChecked, setIsBoxChecked] = useState(false);
     userToken = null;
 
     useEffect(() => {
@@ -36,7 +36,9 @@ function LoginScreen({ navigation }) {
         }
         if (parsedUsers[userId]) {
             if (parsedUsers[userId].pw == userPassword) {
-                AsyncStorage.setItem("userId", userId);
+                if (isBoxChecked) {
+                    AsyncStorage.setItem("userId", userId);
+                }
                 return navigation.reset({
                     index: 0,
                     routes: [{ name: 'Home' }],
@@ -45,6 +47,9 @@ function LoginScreen({ navigation }) {
             alert("şifre hatalı");
         }
         alert("kullanıcı yok");
+    }
+    const rememberMe = () => {
+        setIsBoxChecked(!isBoxChecked)
     }
     const navigateToSignUpScreen = () => {
         setUserPassword("");
@@ -91,19 +96,29 @@ function LoginScreen({ navigation }) {
                                 <Icon name={icon} size={25} color="grey" />
                             </TouchableOpacity>
                         </View>
+
                     </View>
+
+                </View>
+                <View style={styles.rememberMeBoxStyle}>
+
+                    <TouchableOpacity
+                        onPress={() => rememberMe()}
+                        style={isBoxChecked ? { ...styles.rememberMeButtonStyle, backgroundColor: "grey" } : styles.rememberMeButtonStyle}>
+                    </TouchableOpacity>
+                    <Text style={styles.rememberMeTextStyle}>Remember me</Text>
                 </View>
             </View>
-            <View>
-                <TouchableOpacity
-                    style={styles.signUpButtonStyle}
-                    onPress={() => navigateToSignUpScreen()}>
-                    <Text style={styles.signUpTextStyle}>SIGN UP</Text>
-                </TouchableOpacity>
+            <View >
                 <TouchableOpacity
                     onPress={() => signIn()}
                     style={styles.buttonStyle}>
                     <Text style={styles.buttonTextStyle}>SIGN IN</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.signUpButtonStyle}
+                    onPress={() => navigateToSignUpScreen()}>
+                    <Text style={styles.signUpTextStyle}>Don't have an account? Sign Up</Text>
                 </TouchableOpacity>
 
             </View>

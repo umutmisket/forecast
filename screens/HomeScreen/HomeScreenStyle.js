@@ -37,12 +37,24 @@ const styles = StyleSheet.create({
         textAlign: "center",
         color: "#f2f3f4"
     },
+    topViewContainerStyle: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between"
+    },
+    cityViewStyle: {
+        justifyContent: "center",
+        alignItems: "center",
+        paddingLeft: 20
+    },
+    cityTextStyle: {
+        fontSize: 25,
+        color: "#76f5ff",
+        fontWeight: "bold"
+    },
     logoutButtonViewStyle: {
         marginRight: 30,
         marginTop: 10,
-        alignSelf: "flex-end",
-        justifyContent: "center",
-        alignItems: "center"
     },
     buttonStyle: {
         borderRadius: 10,
@@ -65,6 +77,19 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontWeight: "bold",
         color: "white"
+    },
+    graphFirstBoxStyle: {
+        paddingLeft: 5,
+        borderLeftWidth: 1,
+        borderBottomWidth: 1,
+        borderColor: "transparent",
+        borderLeftColor: "white",
+        borderBottomColor: "white",
+
+    },
+    graphBoxStyle: {
+        borderBottomWidth: 1,
+        borderColor: "white",
     },
     showContainerStyle: {
         marginTop: 30,
@@ -90,7 +115,7 @@ const styles = StyleSheet.create({
         color: "white",
         fontWeight: "bold",
         fontSize: 30,
-       marginHorizontal:5
+        marginHorizontal: 5
     },
     horulyTemperatureTextStyle: {
         flex: 2,
@@ -102,10 +127,10 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontStyle: "italic",
     },
-    iconStyle:{
-        flex:2
+    iconStyle: {
+        flex: 2
     }
-    
+
 
 
 })

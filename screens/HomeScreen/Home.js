@@ -1,25 +1,30 @@
 import axios from 'axios';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Text, View, SafeAreaView, ScrollView, RefreshControl, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Text, View, SafeAreaView, ScrollView, RefreshControl, TouchableOpacity, ActivityIndicator, RecyclerViewBackedScrollViewComponent } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import { styles } from './HomeScreenStyle';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Svg, { Circle, Line } from "react-native-svg";
+import Geocoder from 'react-native-geocoding';
+Geocoder.init("AIzaSyBe9Lc119oy1cK0ys7VLoilbPxbV95fqtk");
 
 let isCurrentDayNow;
 const hours = 24;
 
 function HomeScreen({ navigation }) {
+    const [graphValues, setGraphValues] = useState([0, 0, 0, 0, 0, 0, 0]);
     const [isPressed, setIsPressed] = useState(false);
     const [temperatures, setTemperatures] = useState([]);
+    const [locationInfo, setLocationInfo] = useState();
     const [weatherData, setWeatherData] = useState([]);
-    const [location, setLocation] = useState("");
     const [refreshing, setRefreshing] = useState(false);
     const [days, setDays] = useState(["Sun", "Mon.", "Tue.", "Wed.", "Thu.", "Fri.", "Sat."]);
     const [init, setInitialized] = useState(false);
     const [weathersOfCurrentDay, setWeathersOfCurrentDay] = useState([]);
     const [currentIndexToShow, setCurrentIndexToShow] = useState();
     const [show, setShow] = useState(false);
+
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         setWeatherData([]);
@@ -41,11 +46,9 @@ function HomeScreen({ navigation }) {
             await Geolocation.getCurrentPosition(
                 position => {
                     const { latitude, longitude } = position.coords;
-                    setLocation({
-                        latitude,
-                        longitude,
-                    });
+                    locaitonInformation(latitude, longitude)
                     getData(latitude, longitude)
+
                 },
                 error => {
                     console.log(error.code, error.message);
@@ -57,6 +60,21 @@ function HomeScreen({ navigation }) {
             alert("LOCATION ERROR");
             setRefreshing(false);
         }
+    }
+
+    const locaitonInformation = (latitude, longitude) => {
+        Geocoder.from(latitude, longitude)
+            .then(json => {
+                let addressComponent = json.results[0].address_components
+                let length = addressComponent.length
+                if (length - 3 >= 0) {
+                    let city = Object.values(addressComponent[length - 4])[0];
+                    return setLocationInfo(city)
+                } else {
+                    let city = Object.values(addressComponent[0])
+                    return setLocationInfo(city[0])
+                }
+            })
     }
 
     const getData = async (latitude, longitude) => {
@@ -92,16 +110,18 @@ function HomeScreen({ navigation }) {
         let start = 0;
         let end = 0;
         let averageTemperature = 0;
+        let averageTemperatureArray = [];
         return days.map((days, index) => {
             start = end;
             end = start + 24;
-            let temperaturuesOfADay = temperatures.slice(start, end);
-            let totalTemperature = temperaturuesOfADay.reduce((total, number) => {
+            let temperaturesOfADay = temperatures.slice(start, end);
+            let totalTemperature = temperaturesOfADay.reduce((total, number) => {
                 return total + number;
             }, 0)
             averageTemperature = Math.round(totalTemperature / hours);
-            console.log("renderDays", currentIndexToShow, index)
-            const backgroundColor = currentIndexToShow == index ? "#f0b966" : null
+            averageTemperatureArray.push(averageTemperature);
+            setGraphValues(averageTemperatureArray);
+            const backgroundColor = currentIndexToShow == index ? "#97b2c3" : null
             return <TouchableOpacity
                 key={index}
                 style={isPressed ? { ...styles.clickedButtonStyle, backgroundColor: backgroundColor } : styles.dayStyle}
@@ -122,9 +142,38 @@ function HomeScreen({ navigation }) {
         })
     }, [temperatures, weatherData, show, currentIndexToShow])
 
+    const graphDrawer = () => {
+        return days.map((days, index) => {
+            if (index == graphValues.length - 1) return <View key={index} style={styles.graphBoxStyle}>
+                <Svg height="100" width="20" >
+                    <Circle cx="5" cy={100 - graphValues[index]} r="5" fill="#d22f11" />
+                    <View >
+                        <Text style={{ marginTop: 100 - graphValues[index] - 25 }}>
+                            {graphValues[index]}
+                        </Text>
+                    </View>
+                </Svg >
+            </View >
+            return <View
+                key={index}
+                style={index == 0 ? styles.graphFirstBoxStyle : styles.graphBoxStyle}>
+                <Svg height="100" width="55">
+                    <Circle cx="5" cy={100 - graphValues[index]} r="5" fill="#d22f11" />
+                    <Line
+                        x1="0" y1={100 - graphValues[index]} x2="55" y2={100 - graphValues[index + 1]} stroke="#d22f11" strokeWidth="2">
+                    </Line>
+                    <View >
+                        <Text style={{ marginTop: 100 - graphValues[index] - 25 }}>
+                            {graphValues[index]}
+                        </Text>
+                    </View>
+                </Svg >
+            </View>
+        })
+    }
+
     const isShowing = (index) => {
         const myShow = currentIndexToShow != index ? true : !show;
-        console.log("ishowing index", index)
         setCurrentIndexToShow(index);
         setShow(myShow);
 
@@ -252,18 +301,29 @@ function HomeScreen({ navigation }) {
                         onRefresh={onRefresh}>
                     </RefreshControl>
                 }>
-                <View
-                    style={styles.logoutButtonViewStyle}>
-                    <TouchableOpacity
-                        onPress={() => logOut()}>
-                        <Text
-                            style={styles.buttonTextStyle}>
-                            LOGOUT
+                <View style={styles.topViewContainerStyle}>
+                    <View style={styles.cityViewStyle}>
+                        <Text style={styles.cityTextStyle}>
+                            {locationInfo}
                         </Text>
-                    </TouchableOpacity>
+                    </View>
+
+                    <View
+                        style={styles.logoutButtonViewStyle}>
+                        <TouchableOpacity
+                            onPress={() => logOut()}>
+                            <Text
+                                style={styles.buttonTextStyle}>
+                                LOGOUT
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
                 <View style={styles.dayContainerStyle}>
                     {renderDays}
+                </View>
+                <View style={{ justifyContent: "center", alignItems: "center", flexDirection: "row", marginTop: 40 }}>
+                    {graphDrawer()}
                 </View>
                 <View style={styles.showContainerStyle}>
                     {showDetails()}

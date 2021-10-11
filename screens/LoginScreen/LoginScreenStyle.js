@@ -61,8 +61,24 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "#484750"
     },
+    rememberMeBoxStyle: {
+        paddingLeft: 15,
+        flexDirection: "row",
+        alignItems: "center"
+    },
+    rememberMeButtonStyle: {
+        borderWidth: 1,
+        borderRadius: 10,
+        borderColor: "#484750",
+        height: 30,
+        width: 30
+    },
+    rememberMeTextStyle: {
+        marginLeft: 10,
+        color: "white"
+    },
     buttonStyle: {
-        marginTop:10,
+        marginTop: 10,
         height: 50,
         width: 100,
         borderRadius: 20,
@@ -73,16 +89,16 @@ const styles = StyleSheet.create({
     buttonTextStyle: {
         textAlign: "center",
         fontWeight: "bold",
-        color: "white"
+        color: "white",
     },
-    signUpButtonStyle:{
-        alignSelf:"center",
-        marginTop:-20 
+    signUpButtonStyle: {
+        alignSelf: "center",
+        marginTop: 10
     },
     signUpTextStyle: {
         textAlign: "center",
         fontSize: 12,
-        fontWeight:"bold",
+        fontWeight: "bold",
         color: "white"
 
     }
